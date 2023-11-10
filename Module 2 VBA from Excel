@@ -1,0 +1,141 @@
+Sub practice_()
+
+'The ticker symbol
+'Yearly change from the opening price at the beginning of a given year to the closing price at the end of that year.
+'The percentage change from the opening price at the beginning of a given year to the closing price at the end of that year.
+'The total stock volume of the stock.
+
+Dim Ticker_year As Double
+Dim Ticker_open As Double
+Dim Ticker_close As Double
+Dim Ticker_peryear As Double
+Dim Ticker_amt As Double
+Dim summary_table As Integer
+Dim Ticker As String
+
+For Each ws In Worksheets
+
+'create a summary table to hold information - ticker, yearly, %change, total
+    ws.Range("I1").Value = "Ticker"
+    ws.Range("J1").Value = "Yearly Change"
+    ws.Range("K1").Value = "Percent Change"
+    ws.Range("L1").Value = "Total Stock Volume"
+
+'create another summary table for the greatest
+    ws.Range("O2").Value = "Greatest % Increase"
+    ws.Range("O3").Value = "Greatest % Decrease"
+    ws.Range("O4").Value = "Greatest Total Volume"
+    ws.Range("P1").Value = "Ticker"
+    ws.Range("Q1").Value = "Value"
+
+'total in summary table
+    LastRow = ws.Cells(Rows.Count, "A").End(xlUp).Row
+    Ticker_open = ws.Range("C2").Value
+    summary_table = 2
+
+For I = 2 To LastRow
+    If ws.Cells(I + 1, 1).Value <> ws.Cells(I, 1).Value Then
+       
+            'The ticker symbol
+                Ticker = ws.Cells(I, 1).Value
+            
+            'The total stock volume of the stock.
+                Ticker_amt = Ticker_amt + ws.Cells(I, 7).Value
+         
+            'yearly = last.close - first.open
+            'percent_Change = (last.close - first.open)/first.close
+                Ticker_close = ws.Cells(I, 6).Value
+                Ticker_year = Ticker_close - Ticker_open
+                Ticker_peryear = ((Ticker_close - Ticker_open) / Ticker_open) * 100
+             
+             'create a summary table to hold information - ticker, yearly, %change, total
+                ws.Range("I" & summary_table).Value = Ticker
+                ws.Range("J" & summary_table).Value = Ticker_year
+                ws.Range("K" & summary_table).Value = "%" & Ticker_peryear
+                ws.Range("L" & summary_table).Value = Ticker_amt
+                Ticker_open = ws.Cells(I + 1, 3).Value
+               
+            'format summary table
+                ws.Range("J" & summary_table).NumberFormat = "0.00"
+                ws.Range("K" & summary_table).NumberFormat = "0.00%"
+               
+            'Make sure to use conditional formatting that will highlight positive change in green and negative change in red.
+                Select Case Ticker_year
+                    Case Is > 0
+                        ws.Range("J" & summary_table).Interior.ColorIndex = 4
+                    Case Is < 0
+                        ws.Range("J" & summary_table).Interior.ColorIndex = 3
+                    Case Else
+                        ws.Range("J" & summary_table).Interior.ColorIndex = 0
+                End Select
+        
+            'reset
+                Ticker_year = 0
+                Ticker_amt = 0
+                summary_table = summary_table + 1
+
+            Else
+              Ticker_amt = Ticker_amt + ws.Cells(I, 7).Value
+             
+      End If
+
+Next I
+
+'Add functionality to your script to return the stock with the "Greatest % increase", "Greatest % decrease", and "Greatest total volume".
+
+Dim IncVal As Double
+Dim DecVal As Double
+Dim GTotal As Double
+Dim IncTicker As String
+Dim DecTicker As String
+Dim GTicker As String
+
+LastRow = ws.Cells(Rows.Count, "K").End(xlUp).Row
+
+IncVal = ws.Range("K2").Value
+IncTicker = ws.Range("I2").Value
+DecVal = ws.Range("K2").Value
+DecTicker = ws.Range("I2").Value
+GTotal = ws.Range("L2").Value
+GTicker = ws.Range("I2").Value
+
+
+For j = 2 To LastRow
+           
+         ' Greatest percent increase
+         If ws.Cells(j, 11).Value > IncVal Then
+             IncVal = ws.Cells(j, 11).Value
+             IncTicker = ws.Cells(j, 9).Value
+         End If
+        
+         ' Greatest percent decrease
+         If ws.Cells(j, 11).Value < DecVal Then
+             DecVal = ws.Cells(j, 11).Value
+             DecTicker = ws.Cells(j, 9).Value
+         End If
+         
+         ' Greatest total volume
+         If ws.Cells(j, 12).Value > GTotal Then
+             GTotal = ws.Cells(j, 12).Value
+             GTicker = ws.Cells(j, 9).Value
+         End If
+    
+     'create a summary table to hold information
+            ws.Range("Q2").Value = IncVal
+            ws.Range("Q3").Value = DecVal
+            ws.Range("Q4").Value = GTotal
+            ws.Range("P2").Value = IncTicker
+            ws.Range("P3").Value = DecTicker
+            ws.Range("P4").Value = GTicker
+      
+    'format summary table
+            ws.Range("Q2").NumberFormat = "0.00%"
+            ws.Range("Q3").NumberFormat = "0.00%"
+           
+Next j
+
+Next ws
+
+End Sub
+
+
